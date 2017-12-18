@@ -25,8 +25,6 @@ file_aliases = {
 	wrapper:       "#{HOME}/.config/i3/wrapper.py",
 	togglemouse:   "#{HOME}/.config/i3/scripts/togglemouse.sh",
 	termite:       "#{HOME}/.config/termite/config",
-
-	tmp:           "#{HOME}/tmp"
 }
 files = [
 	file_aliases[:bashrc],
@@ -36,7 +34,6 @@ files = [
 	file_aliases[:togglemouse],
 	file_aliases[:termite]
 ]
-files = [file_aliases[:tmp]]
 KEYWORDS = {
 	single:       /\s*.PROFILE=/,
 	block_start:  /\s*.PROFILE_START=/,
@@ -53,7 +50,7 @@ else
 		profiles = ["h77m-arch"]
 	when 'noah-acer'
 		profiles = ["acer"]
-	when 'aware-desktop'
+	when 'AWARE-arch'
 		profiles = ["aware"]
 	end
 end
