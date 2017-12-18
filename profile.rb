@@ -1,5 +1,7 @@
 #!/bin/env ruby
 
+require 'byebug'
+
 ############################################################
 ###                    profile.rb v2                     ###
 ###                  by Noah Rosenzweig                  ###
@@ -82,8 +84,8 @@ def main args
 				block = blocks.last
 
 				vars = {}
-				criteria = block[:criteria].dup
-				criteria.gsub! /([A-z0-9\-_]+)/, 'vars["\1"]'
+				#criteria = block[:criteria].dup
+				#criteria.gsub! /([A-z0-9\-_]+)/, 'vars["\1"]'
 
 				## Set variables
 				block[:criteria].scan(/[A-z0-9\-_]+/).uniq.each do |profile|
@@ -97,7 +99,7 @@ def main args
 				end
 
 				## Check if profiles match criteria
-				if ( eval( criteria ) )
+				if ( eval( block[:criteria] ) )
 					# MATCHES - uncomment
 					if (line.match(/\S{2}/).to_s == block[:comment] * 2)
 						line = line.sub block[:comment] * 2, ""
@@ -119,13 +121,13 @@ def main args
 				when :single
 					blocks << {
 						type:     :single,
-						criteria: line.match(/=.+/).to_s.delete("="),
+						criteria: line.match(/=.+/).to_s.delete("=").gsub(/([A-z0-9\-_]+)/, 'vars["\1"]'),
 						comment:  line.match(/\S/).to_s
 					}
 				when :block_start
 					blocks << {
 						type:     :block,
-						criteria: line.match(/=.+/).to_s.delete("="),
+						criteria: line.match(/=.+/).to_s.delete("=").gsub(/([A-z0-9\-_]+)/, 'vars["\1"]'),
 						comment:  line.match(/\S/).to_s
 					}
 				when :block_end
