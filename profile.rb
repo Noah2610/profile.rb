@@ -1,12 +1,8 @@
 #!/bin/env ruby
 
-require 'byebug'
-
 ############################################################
 ###                    profile.rb v2                     ###
 ###                  by Noah Rosenzweig                  ###
-############################################################
-
 ############################################################
 ###  USAGE:                                              ###
 ###   Profile criteria from command line:                ###
@@ -15,7 +11,10 @@ require 'byebug'
 ### $ ./profile.rb profile file1,filealias1,file2        ###
 ############################################################
 
+### Set this to your home directory
 HOME = "/home/noah"
+
+### File aliases you can use from command line
 file_aliases = {
 	bashrc:        "#{HOME}/.bashrc",
 	vimrc:         "#{HOME}/.vimrc",
@@ -26,6 +25,8 @@ file_aliases = {
 	togglemouse:   "#{HOME}/.config/i3/scripts/togglemouse.sh",
 	termite:       "#{HOME}/.config/termite/config",
 }
+
+### Default files that will be processed if none are given from command line
 files = [
 	file_aliases[:bashrc],
 	file_aliases[:i3config],
@@ -34,6 +35,8 @@ files = [
 	file_aliases[:togglemouse],
 	file_aliases[:termite]
 ]
+
+### Commented-out keywords in your configs
 KEYWORDS = {
 	single:       /\s*.PROFILE=/,
 	block_start:  /\s*.PROFILE_START=/,
@@ -45,6 +48,7 @@ profiles_not = []
 if (ARGV[0])
 	profiles = ARGV[0].split ","
 else
+	### Default profile(s) to use according to your machine's hostname, unless profiles are given on command line
 	case `hostname`.strip
 	when 'desktop-arch'
 		profiles = ["h77m-arch"]
@@ -54,6 +58,7 @@ else
 		profiles = ["aware"]
 	end
 end
+
 ## Filter out negated profiles ('!' || '~')
 profiles.each do |profile|
 	if (profile[0] == "!" || profile[0] == "~")
