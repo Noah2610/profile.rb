@@ -79,40 +79,6 @@ def main args
 		lines.each do |line|
 			## Loop through each line in file
 
-			## Handle blocks
-			if (blocks.last)
-				block = blocks.last
-
-				vars = {}
-				#criteria = block[:criteria].dup
-				#criteria.gsub! /([A-z0-9\-_]+)/, 'vars["\1"]'
-
-				## Set variables
-				block[:criteria].scan(/[A-z0-9\-_]+/).uniq.each do |profile|
-					if (profiles.include? profile)
-						eval "vars[\"#{profile}\"] = true"
-					elsif (profiles_not.include? profile)
-						eval "vars[\"#{profile}\"] = false"
-					else
-						eval "vars[\"#{profile}\"] = false"
-					end
-				end
-
-				## Check if profiles match criteria
-				if ( eval( block[:criteria] ) )
-					# MATCHES - uncomment
-					if (line.match(/\S{2}/).to_s == block[:comment] * 2)
-						line = line.sub block[:comment] * 2, ""
-					end
-				else
-					# DOESN'T MATCH - comment out
-					unless (line.match(/\S{2}/).to_s == block[:comment] * 2)
-						line = "#{block[:comment] * 2}#{line}"
-					end
-				end
-
-				blocks.delete block  if (block[:type] == :single)
-			end
 
 			match = KEYWORDS.map { |k,v| k  if (line =~ v) } .reject { |v| v.nil? } .first
 			if (match)
@@ -133,6 +99,42 @@ def main args
 				when :block_end
 					blocks.delete blocks.last
 				end
+
+				else
+					## Manipulate line
+					if (blocks.last)
+						block = blocks.last
+
+						vars = {}
+						#criteria = block[:criteria].dup
+						#criteria.gsub! /([A-z0-9\-_]+)/, 'vars["\1"]'
+
+						## Set variables
+						block[:criteria].scan(/[A-z0-9\-_]+/).uniq.each do |profile|
+							if (profiles.include? profile)
+								eval "vars[\"#{profile}\"] = true"
+							elsif (profiles_not.include? profile)
+								eval "vars[\"#{profile}\"] = false"
+							else
+								eval "vars[\"#{profile}\"] = false"
+							end
+						end
+
+						## Check if profiles match criteria
+						if ( eval( block[:criteria] ) )
+							# MATCHES - uncomment
+							if (line.match(/\S{2}/).to_s == block[:comment] * 2)
+								line = line.sub block[:comment] * 2, ""
+							end
+						else
+							# DOESN'T MATCH - comment out
+							unless (line.match(/\S{2}/).to_s == block[:comment] * 2)
+								line = "#{block[:comment] * 2}#{line}"  unless (line.match(/\S/).to_s == block[:comment])
+							end
+						end
+
+						blocks.delete block  if (block[:type] == :single)
+					end
 
 			end
 
