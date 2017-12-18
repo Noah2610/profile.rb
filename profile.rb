@@ -24,16 +24,19 @@ file_aliases = {
 	i3status:      "#{HOME}/.config/i3/i3status.conf",
 	wrapper:       "#{HOME}/.config/i3/wrapper.py",
 	togglemouse:   "#{HOME}/.config/i3/scripts/togglemouse.sh",
-	termite:       "#{HOME}/.config/termite/config"
+	termite:       "#{HOME}/.config/termite/config",
+
+	tmp:           "#{HOME}/tmp"
 }
 files = [
+	file_aliases[:bashrc],
 	file_aliases[:i3config],
 	file_aliases[:i3status],
 	file_aliases[:wrapper],
 	file_aliases[:togglemouse],
-	file_aliases[:termite],
-	file_aliases[:bashrc]
+	file_aliases[:termite]
 ]
+files = [file_aliases[:tmp]]
 KEYWORDS = {
 	single:       /\s*.PROFILE=/,
 	block_start:  /\s*.PROFILE_START=/,
@@ -57,12 +60,20 @@ end
 ## Filter out negated profiles ('!' || '~')
 profiles.each do |profile|
 	if (profile[0] == "!" || profile[0] == "~")
-		profiles_not << profile
+		profiles_not << profile.gsub(/!|~/, "")
 		profiles.delete profile
 	end
 end
-
-files = ARGV[1].split ","  if ARGV[1]
+## Overwrite files if given from command line
+if (ARGV[1])
+	files = ARGV[1].split ","
+	## Check for aliases and replace with file path
+	files.each_with_index do |file,index|
+		if (file_aliases.keys.include? file.to_sym)
+			files[index] = file_aliases[file.to_sym]
+		end
+	end
+end
 
 
 def main args
@@ -79,10 +90,9 @@ def main args
 		lines.each do |line|
 			## Loop through each line in file
 
-
 			match = KEYWORDS.map { |k,v| k  if (line =~ v) } .reject { |v| v.nil? } .first
 			if (match)
-				# Keyword found, check type
+				## Keyword found, check type
 				case match
 				when :single
 					blocks << {
@@ -100,41 +110,40 @@ def main args
 					blocks.delete blocks.last
 				end
 
-				else
-					## Manipulate line
-					if (blocks.last)
-						block = blocks.last
+			else
+				## No keyword found, manipulate line if necessary
+				if (blocks.last)
+					block = blocks.last
+					vars = {}
 
-						vars = {}
-						#criteria = block[:criteria].dup
-						#criteria.gsub! /([A-z0-9\-_]+)/, 'vars["\1"]'
-
-						## Set variables
-						block[:criteria].scan(/[A-z0-9\-_]+/).uniq.each do |profile|
-							if (profiles.include? profile)
-								eval "vars[\"#{profile}\"] = true"
-							elsif (profiles_not.include? profile)
-								eval "vars[\"#{profile}\"] = false"
-							else
-								eval "vars[\"#{profile}\"] = false"
-							end
-						end
-
-						## Check if profiles match criteria
-						if ( eval( block[:criteria] ) )
-							# MATCHES - uncomment
-							if (line.match(/\S{2}/).to_s == block[:comment] * 2)
-								line = line.sub block[:comment] * 2, ""
-							end
+					## Set variables
+					block[:criteria].scan(/\["\S+"\]/).uniq.each do |profile|
+						profile.gsub!(/\["|"\]/, "")
+						if (profiles.include? profile)
+							vars[profile] = true
+						elsif (profiles_not.any? && !profiles_not.include?(profile))
+							vars[profile] = true
 						else
-							# DOESN'T MATCH - comment out
-							unless (line.match(/\S{2}/).to_s == block[:comment] * 2)
-								line = "#{block[:comment] * 2}#{line}"  unless (line.match(/\S/).to_s == block[:comment])
-							end
+							vars[profile] = false
 						end
-
-						blocks.delete block  if (block[:type] == :single)
 					end
+
+					## Check if profiles match criteria
+					if ( eval( block[:criteria] ) )
+						# MATCHES - uncomment
+						if (line.match(/\S{2}/).to_s == block[:comment] * 2)
+							line.sub! block[:comment] * 2, ""
+						end
+					else
+						# DOESN'T MATCH - comment out
+						unless (line.match(/\S{2}/).to_s == block[:comment] * 2)
+							white = line.match /\A[ \t]*/
+							line.sub! /#{white}/, "#{white}#{block[:comment] * 2}"  unless (line.match(/\S/).to_s == block[:comment])
+						end
+					end
+
+					blocks.delete block  if (block[:type] == :single)
+				end
 
 			end
 
