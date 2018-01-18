@@ -52,7 +52,7 @@ else
 	case `hostname`.strip
 	when 'desktop-arch'
 		profiles = ["h77m-arch"]
-	when 'noah-acer'
+	when 'acer-arch'
 		profiles = ["acer"]
 	when 'AWARE-arch'
 		profiles = ["aware"]
