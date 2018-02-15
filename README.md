@@ -11,7 +11,7 @@ When the script is executed, it will then either **comment out** or **uncomment*
 according to what profile you want to use.
 
 ---
-**THIS README IS OUTDATED FOR DEV BRANCH**  
+**THIS README IS OUTDATED**  
 **THERE ARE CONFIGS NOW :)**
 ---
 
