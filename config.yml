@@ -14,16 +14,14 @@ file_aliases:
   bashrc:  '$HOME/.bashrc'
   vimrc:   '$HOME/.vimrc'
   xmodmap: '$HOME/.Xmodmap'
-  dev:     '$ROOT/dev_config'
 
 ## These are the default files you want to have processed.
 ## You can either define full paths (starting with '/', '$HOME', or '~')
 ## or use a file_alias and define the full path under 'file_aliases'.
 files:
-  - 'dev'
-  #- 'bashrc'
-  #- 'vimrc'
-  #- 'xmodmap'
+  - 'bashrc'
+  - 'vimrc'
+  - 'xmodmap'
 
 ## Here you can associate profiles with a hostname.
 ## When the script is run without profile(s) given as an argument on
