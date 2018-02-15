@@ -10,36 +10,12 @@ that tell the script which profile this config snippet is associated to.
 When the script is executed, it will then either **comment out** or **uncomment** those snippets,  
 according to what profile you want to use.
 
+---
+**THIS README IS OUTDATED FOR DEV BRANCH**  
+**THERE ARE CONFIGS NOW :)**
+---
+
 ## Setup
-Inside *profile.rb* you should set some variables, for example:
-```ruby
-### File aliases you can use from command line
-file_aliases = {
-  bashrc:  "~/.bashrc",
-  vimrc:   "~/.vimrc"
-}
-
-### Default files that will be processed if none are given from command line
-files = [
-  file_aliases[:bashrc],
-  "~/path/to/config"
-]
-
-# Line ~50
-### Default profile(s) to use according to your machine's hostname, unless profiles are given on command line
-case `hostname`.strip
-when 'my-desktop'
-  profiles =     ["desktop", "main"]
-when 'main-laptop', 'other-laptop'
-  profiles =     ["laptop"]
-when 'work-machine'
-  profiles =     ["work"]
-  profiles_not = ["main"]    # Everything that isn't profile 'main'
-                             # not recommend, because it allows ALL profiles except 'main'
-else
-  profile = ["default"]
-end
-```
 
 ## Usage
 Inside your configs you can have syntax like this:
