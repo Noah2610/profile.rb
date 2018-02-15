@@ -1,0 +1,80 @@
+### This is the default config.yml file for profile.rb.
+### The config defines the files you want to have processed by profile.rb
+### and what syntax you want to use.
+
+## These are your file aliases.
+## Define full config paths here and use the aliases
+## from the command-line or under 'files'.
+## You can use '$HOME' or '~' for your home directory;
+## '~' is treated the same as '$HOME', because the script can
+## determine the user's home directory more reliably.
+## '$ROOT' is also available, which points to the profile.rb script's
+## project root directory.
+file_aliases:
+  bashrc:  '$HOME/.bashrc'
+  vimrc:   '$HOME/.vimrc'
+  xmodmap: '$HOME/.Xmodmap'
+  dev:     '$ROOT/dev_config'
+
+## These are the default files you want to have processed.
+## You can either define full paths (starting with '/', '$HOME', or '~')
+## or use a file_alias and define the full path under 'file_aliases'.
+files:
+  - 'dev'
+  #- 'bashrc'
+  #- 'vimrc'
+  #- 'xmodmap'
+
+## Here you can associate profiles with a hostname.
+## When the script is run without profile(s) given as an argument on
+## the command-line, then it tries to match the hostname with a key here
+## and use its value as the profiles.
+## You can also define default profiles as a key named 'default',
+## which is used when no profile is given via CL argument and it couldn't
+## match a hostname defined here. You can use the special value
+## '$HOSTNAME' for key 'default' to use the machines hostname
+## as the profile, by default.
+hostname_profiles:
+  default:         # <- hostname (or 'default')
+    - 'default'    # <- profiles (or '$HOSTNAME')
+    - '$HOSTNAME'  # <--|
+  desktop-arch:
+    - 'h77m-arch'
+  acer-arch:
+    - 'acer'
+  AWARE-arch:
+    - 'aware'
+  aware-desktop:
+    - 'aware-desktop'
+
+## Here the syntax you will be using in your configs is defined.
+## It is recommended to use the default syntax, but you are free to change it.
+## The values are Regular Expressions; it is not necessary to wrap them
+## in slashes ('/'), but without slashes you cannot pass any options.
+## See http://rubular.com/ for valid Ruby RegExp.
+## 'single' and 'block_start' require custom conditions following the
+## keywords in your configs, so it is recommended to use some identifier
+## at the end like '=' or ':'.
+## Spaces are also valid if you want it to look nicer.
+keywords:
+  # The separator character is used to separate the keywords from
+  # your custom conditions in your configs. It is used to find your conditions
+  # if it matches a line with one of the keywords' Regular Expressions.
+  # You can and should use the special character '=' in your
+  # Regular Expressions; it will be replaced by the 'separator' value.
+  separator:   '='
+  single:      '/^\s*(.)\1?PROFILE=/'
+  block_start: '/^\s*(.)\1?PROFILE_START=/'
+  block_end:   '/^\s*(.)\1?PROFILE_END/'
+  #                  ^^^^^^
+  #  This RegExp snippet should be matched to your config's comment
+  #  character(s). All this part does is check if any one or two
+  #  of the same characters are at the beginning of your line.
+  #  The point behind this is that although most config files will use
+  #  a single character as a one-line comment, a lot of programming
+  #  languages use two of the same characters as a one-line comment,
+  #  so if your using a config file in a language that does this,
+  #  this will cover that case as well.
+  #  It also takes into account that there might be some whitespace
+  #  characters in front of that.
+

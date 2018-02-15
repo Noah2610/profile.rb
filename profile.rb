@@ -11,71 +11,139 @@
 ### $ ./profile.rb profile file1,filealias1,file2        ###
 ############################################################
 
-### Set this to your home directory
-HOME = "/home/noah"
+require 'yaml'
+require 'pathname'
 
-### File aliases you can use from command line
-file_aliases = {
-	bashrc:        "#{HOME}/.bashrc",
-	vimrc:         "#{HOME}/.vimrc",
-	xmodmap:       "#{HOME}/.Xmodmap",
-	i3config:      "#{HOME}/.config/i3/config",
-	i3status:      "#{HOME}/.config/i3/i3status.conf",
-	wrapper:       "#{HOME}/.config/i3/wrapper.py",
-	togglemouse:   "#{HOME}/.config/i3/scripts/togglemouse.sh",
-	termite:       "#{HOME}/.config/termite/config",
-}
+## Get root directory of this script
+ROOT = (Pathname.new(File.absolute_path(__FILE__)).realpath).dirname.to_s
+HOME = Dir.home
+HOSTNAME = `hostname`.strip
 
-### Default files that will be processed if none are given from command line
-files = [
-	file_aliases[:bashrc],
-	file_aliases[:i3config],
-	file_aliases[:i3status],
-	file_aliases[:wrapper],
-	file_aliases[:togglemouse],
-	file_aliases[:termite]
+## require my ArgumentParser Ruby command-line argument parser gem
+#require File.join(ROOT, 'ArgumentParser.rb')
+
+## Monkey patch in to_regexp method to String
+class String
+	def to_regexp
+		slashes = self.count '/'
+		return Regexp.new(self)  if     (slashes == 0)
+		return nil               unless (slashes == 2)
+		split = self.split("/")
+		options = (
+			(split[2].include?("x") ? Regexp::EXTENDED : 0) |
+			(split[2].include?("i") ? Regexp::IGNORECASE : 0) |
+			(split[2].include?("m") ? Regexp::MULTILINE : 0)
+		)              unless (split[2].nil?)
+		options = nil  if (split[2].nil?)
+		return Regexp.new(split[1], options)
+	end
+end
+
+## Default config paths
+CONFIG_PATHS = [
+	File.join(HOME, '.config/profilerb/config.yml'),
+	File.join(HOME, '.profilerb.yml'),
+	File.join(ROOT, 'config.yml')
 ]
 
-### Commented-out keywords in your configs
-KEYWORDS = {
-	single:       /\s*.PROFILE=/,
-	block_start:  /\s*.PROFILE_START=/,
-	block_end:    /\s*.PROFILE_END/,
+## Default Keywords
+DEFAULT_KEYWORDS = {
+	single:       /^\s*.PROFILE=/,
+	block_start:  /^\s*.PROFILE_START=/,
+	block_end:    /^\s*.PROFILE_END/,
 }
+DEFAULT_SEPARATOR = '='
 
+## Default profile(s)
+DEFAULT_PROFILES = [
+	'default',
+	'$HOSTNAME'
+]
+
+def get_config_file
+	ret = nil
+	CONFIG_PATHS.each do |file|
+		if (File.file? file)
+			ret = YAML.load_file file
+			break
+		end
+	end
+	return ret
+end
+
+## Get config
+CONFIG = get_config_file || {}
+
+## Handle KEYWORDS
+SEPARATOR = CONFIG['keywords'] ? (CONFIG['keywords']['separator'] ? Regexp.quote(CONFIG['keywords']['separator']) : DEFAULT_SEPARATOR) : DEFAULT_SEPARATOR
+KEYWORDS = CONFIG['keywords'] ? (CONFIG['keywords'].map do |key,val|
+	next nil  if (key == 'separator')
+	value = val.gsub DEFAULT_SEPARATOR, SEPARATOR
+	regexp = value.to_regexp
+	abort [
+		"Error: '#{value}' doesn't seem to be a valid Regular Expression.",
+		"  Make sure that you have either surrounded it with slashes ('/'),",
+		"  or didn't use any slashes at all.",
+		"  If you want to use slashes, escape them ('\\/')."
+	].join("\n")  if (regexp.nil? || !regexp.is_a?(Regexp))
+	nex = [
+		key.to_sym,
+		regexp
+	]
+	next nex
+end .reject { |v| v.nil? } .to_h) : DEFAULT_KEYWORDS
+
+## Handle file_aliases
+FILE_ALIASES = CONFIG['file_aliases'].map do |key,val|
+	nex = [key.to_sym, val]
+	nex[1].gsub! /(\$HOME)|~/, HOME  if (val =~ /\$HOME/)  # Replace '$HOME' or '~' with full home directory path
+	nex[1].gsub! /(\$ROOT)/, ROOT    if (val =~ /\$ROOT/)  # Replace '$ROOT' with root directory of this script
+	next nex
+end .to_h
+
+## Handle files
+# Determine which files to use; from command-line or from config
+files = ARGV[1] ? ARGV[1].split(',') : (CONFIG['files'] || abort([
+	"Error: No files specified in config or from command-line.",
+	"  Nothing to do."
+].join("\n")))
+FILES = files.map do |file|
+	nex = FILE_ALIASES[file.to_sym] || file
+	abort [
+		"Error: File #{nex} doesn't exist or is a directory."
+	].join("\n")  unless (File.file? nex)
+	next nex
+end
+
+## Set profiles
 profiles = []
 profiles_not = []
 if (ARGV[0])
 	profiles = ARGV[0].split ","
 else
-	### Default profile(s) to use according to your machine's hostname, unless profiles are given on command line
-	case `hostname`.strip
-	when 'desktop-arch'
-		profiles = ["h77m-arch"]
-	when 'acer-arch'
-		profiles = ["acer"]
-	when 'AWARE-arch'
-		profiles = ["aware"]
+	## Default profile(s) to use according to your machine's hostname,
+	## unless profiles are given on command line
+	if (hostname_profiles = CONFIG['hostname_profiles'])
+		profiles = hostname_profiles[HOSTNAME] || hostname_profiles['default'] || DEFAULT_PROFILES
+	else
+		# No profiles defined anywhere, use hard-coded default
+		profiles = DEFAULT_PROFILES
 	end
 end
 
+## Replace '$HOSTNAME' with actual hostname in profiles
+profiles.map! { |p| next p.gsub(/\$HOSTNAME/, HOSTNAME) }
+
 ## Filter out negated profiles ('!' || '~')
 profiles.each do |profile|
-	if (profile[0] == "!" || profile[0] == "~")
+	if (profile[0] =~ /!|~/)
 		profiles_not << profile.gsub(/!|~/, "")
 		profiles.delete profile
 	end
 end
-## Overwrite files if given from command line
-if (ARGV[1])
-	files = ARGV[1].split ","
-	## Check for aliases and replace with file path
-	files.each_with_index do |file,index|
-		if (file_aliases.keys.include? file.to_sym)
-			files[index] = file_aliases[file.to_sym]
-		end
-	end
-end
+
+PROFILES = profiles
+PROFILES_NOT = profiles_not
 
 
 def main args
@@ -92,20 +160,20 @@ def main args
 		lines.each do |line|
 			## Loop through each line in file
 
-			match = KEYWORDS.map { |k,v| k  if (line =~ v) } .reject { |v| v.nil? } .first
+			match = KEYWORDS.map { |k,v| next k  if (line =~ v) } .reject { |k| k.nil? || k == :separator } .first
 			if (match)
 				## Keyword found, check type
 				case match
 				when :single
 					blocks << {
 						type:     :single,
-						criteria: line.match(/=.+/).to_s.delete("=").gsub(/([A-z0-9\-_]+)/, 'vars["\1"]'),
+						criteria: line.match(/#{SEPARATOR}.+/).to_s.delete("#{SEPARATOR}").gsub(/([A-z0-9\-_]+)/, 'vars["\1"]'),
 						comment:  line.match(/\S/).to_s
 					}
 				when :block_start
 					blocks << {
 						type:     :block,
-						criteria: line.match(/=.+/).to_s.delete("=").gsub(/([A-z0-9\-_]+)/, 'vars["\1"]'),
+						criteria: line.match(/#{SEPARATOR}.+/).to_s.delete("#{SEPARATOR}").gsub(/([A-z0-9\-_]+)/, 'vars["\1"]'),
 						comment:  line.match(/\S/).to_s
 					}
 				when :block_end
@@ -166,10 +234,10 @@ def main args
 
 end
 
-puts "Profiles:\t#{profiles.join(", ")}"
-puts "Files:\t\t#{files.join(", ")}"
+puts "Profiles:\t#{PROFILES.join(", ")}"
+puts "Files:\t\t#{FILES.join(", ")}"
 
-main profiles: profiles, profiles_not: profiles_not, files: files
+main profiles: PROFILES, profiles_not: PROFILES_NOT, files: FILES
 
 puts "DONE"
 
