@@ -36,14 +36,6 @@ hostname_profiles:
   default:         # <- hostname (or 'default')
     - 'default'    # <- profiles (or '$HOSTNAME')
     - '$HOSTNAME'  # <--|
-  desktop-arch:
-    - 'h77m-arch'
-  acer-arch:
-    - 'acer'
-  AWARE-arch:
-    - 'aware'
-  aware-desktop:
-    - 'aware-desktop'
 
 ## Here the syntax you will be using in your configs is defined.
 ## It is recommended to use the default syntax, but you are free to change it.
