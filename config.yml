@@ -53,10 +53,10 @@ keywords:
   # You can and should use the special character '=' in your
   # Regular Expressions; it will be replaced by the 'separator' value.
   separator:   '='
-  single:      '/^\s*(.)\1?PROFILE=/'
-  block_start: '/^\s*(.)\1?PROFILE_START=/'
-  block_end:   '/^\s*(.)\1?PROFILE_END/'
-  #                  ^^^^^^
+  single:      '/\A\s*(.)\1?PROFILE\s*=/'
+  block_start: '/\A\s*(.)\1?PROFILE_START\s*=/'
+  block_end:   '/\A\s*(.)\1?PROFILE_END\z/'
+  #                   ^^^^^^
   #  This RegExp snippet should be matched to your config's comment
   #  character(s). All this part does is check if any one or two
   #  of the same characters are at the beginning of your line.
