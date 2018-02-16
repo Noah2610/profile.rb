@@ -1,5 +1,19 @@
-# profile.rb v2
-#### by Noah Rosenzweig
+# ProfileRB v2
+by Noah Rosenzweig
+
+---
+
+## Table Of Contents
+* [Description](#description)
+* [Installation](#installation)
+* [Configuration](#configuration)
+  * [Quick Summary](#quick-summary)
+* [Usage](#usage)
+  * [Default Syntax](#default-syntax)
+  * [Command-Line Usage](#command-line-usage)
+    * [Synopsis](#synopsis)
+    * [Examples](#examples)
+
 ---
 
 ## Description
@@ -18,10 +32,10 @@ It should work with versions 2.0.0 and up.
 I haven't tested the script with Windows, but you're probably not using  
 dotfiles if you're running Windows anyway.
   
-As long as Ruby is installed, should have no issues using this script  
+As long as Ruby is installed, you should have no issues using this script  
 after cloning the repo:
 ```
-$ git clone https://github.com/Noah2610/profile.rb.git ./ProfileRB; cd ./ProfileRB
+$ git clone https://github.com/Noah2610/profile.rb.git ./ProfileRB; cd ./ProfileRB/
 ```
 
 ## Configuration
@@ -32,8 +46,9 @@ The script checks for a YAML config file in the following locations and order:
   
 The default config.yml file (`./config.yml`) is pretty well documented  
 in form of comments inside the file itself, so check it out for a more  
-detailed explanation and documentation of the config syntax.  
-  
+detailed explanation and documentation of the config syntax.
+
+### Quick Summary
 I'll give a quick explanation here:  
   
 The config file has four sections:
@@ -41,13 +56,13 @@ The config file has four sections:
   In here you can associate strings with filepaths, so you  
   don't need to type the whole path out in the `files` section,  
   and can easily activate and deactivate them.
-* `files`
-	Here the files go that you want to have processed by default.  
+* `files`  
+	Here are the files that you want to have processed by default.  
 	You can use `file_aliases` here.
-* `hostname_profiles`
+* `hostname_profiles`  
   Here you can associate a list of profiles to use by default  
 	according to the machine's hostname.
-* `keywords`
+* `keywords`  
   In here the syntax you use inside the files is defined.  
   The default config is configured to use the syntax described below under __Default Syntax__.
 
@@ -69,7 +84,7 @@ export SOMETHING="foobarbaz"  # main but NOT desktop and NOT laptop
 ```
 The syntax is defined as _Regular Expressions_ in the config file.  
   
-You can use Ruby operators in expressions, they are _eval_uated.  
+You can use Ruby operators in expressions, they are <u>eval</u>uated.  
   
 
 ### Command-Line Usage
@@ -79,7 +94,7 @@ You can use Ruby operators in expressions, they are _eval_uated.
 ```
 #### Examples
 ```sh
-$ # Will use default profiles and files, as defined above:
+$ # Will use default profiles and files, as defined in your config:
 $ ./profile.rb
 $ # Use profile 'desktop' but NOT 'main' and NOT 'laptop' (negations not recommended) and default files:
 $ ./profile.rb desktop,\!main,~laptop
