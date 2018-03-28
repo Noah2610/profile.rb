@@ -55,13 +55,14 @@ The config file has four sections:
 * `file_aliases`  
   In here you can associate strings with filepaths, so you  
   don't need to type the whole path out in the `files` section,  
-  and can easily activate and deactivate them.
+  and can easily activate and deactivate them.  
+  They can also be directories, in which case all files inside the directory will be processed.
 * `files`  
-	Here are the files that you want to have processed by default.  
-	You can use `file_aliases` here.
+  Here are the files that you want to have processed by default.  
+  You can use `file_aliases` here.
 * `hostname_profiles`  
   Here you can associate a list of profiles to use by default  
-	according to the machine's hostname.
+  according to the machine's hostname.
 * `keywords`  
   In here the syntax you use inside the files is defined.  
   The default config is configured to use the syntax described below under __Default Syntax__.

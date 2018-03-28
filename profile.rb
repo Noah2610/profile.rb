@@ -109,11 +109,19 @@ files = ARGV[1] ? ARGV[1].split(',') : (CONFIG['files'] || abort([
 ].join("\n")))
 FILES = files.map do |file|
 	nex = FILE_ALIASES[file.to_sym] || file
-	abort [
-		"Error: File #{nex} doesn't exist or is a directory."
-	].join("\n")  unless (File.file? nex)
+	## Read all files in directory if file is directory
+	if    (File.directory? nex)
+		nex = Dir.new(nex).map do |f|
+			fpath = File.join(nex, f)
+			next fpath  if (File.file? fpath)
+		end .reject { |x| !x }
+	elsif (!File.file?(nex))
+		abort [
+			"Error: File #{nex} doesn't exist."
+		].join("\n")
+	end
 	next nex
-end
+end .flatten
 
 ## Set profiles
 profiles = []
