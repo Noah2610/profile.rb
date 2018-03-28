@@ -242,8 +242,8 @@ def main args
 
 end
 
-puts "Profiles:\t#{PROFILES.join(", ")}"
-puts "Files:\t\t#{FILES.join(", ")}"
+puts "Profiles:\n\t#{PROFILES.join("\n\t")}"
+puts "Files:\n\t#{FILES.join("\n\t")}"
 
 main profiles: PROFILES, profiles_not: PROFILES_NOT, files: FILES
 
