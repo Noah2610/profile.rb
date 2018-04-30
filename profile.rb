@@ -231,7 +231,7 @@ def main args
 		end
 
 		# Add new line to end of file
-		lines_processed << "\n"
+		#lines_processed << "\n"
 
 		## Write to file
 		f = File.new file, "w"
@@ -248,4 +248,3 @@ puts "Files:\n\t#{FILES.join("\n\t")}"
 main profiles: PROFILES, profiles_not: PROFILES_NOT, files: FILES
 
 puts "DONE"
-
