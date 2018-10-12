@@ -231,7 +231,7 @@ def main args
 		end
 
 		# Add new line to end of file
-		#lines_processed << "\n"
+		lines_processed << ""
 
 		## Write to file
 		f = File.new file, "w"
