@@ -13,6 +13,7 @@ by Noah Rosenzweig
   * [Command-Line Usage](#command-line-usage)
     * [Synopsis](#synopsis)
     * [Examples](#examples)
+* [License](#license)
 
 ---
 
@@ -105,3 +106,7 @@ $ ./profile.rb desktop bashrc,~/path/to/config
 
 I plan to expand the CL usage with some options using my Ruby [Argument Parser](https://github.com/Noah2610/ArgumentParser).
 
+---
+
+# License
+This project is licensed under the MIT-license.
